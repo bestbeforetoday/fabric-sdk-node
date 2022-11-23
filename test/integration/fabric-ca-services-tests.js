@@ -344,31 +344,37 @@ test('\n\n ** FabricCAServices: Test enroll() With Dynamic CSR **\n\n', (t) => {
 function checkoutCertForAttributes(t, pem, should_find, attr_name) {
 	// jsrsasign seems to truncate the content of custom/non-standard extensions so skip checking for now
 
-	// const cert = new X509();
-	// cert.readCertPEM(pem);
-	// const params = cert.getParam();
-	// const extension = cert.findExt(params.ext, '1.2.3.4.5.6.7.8.1');
+	t.comment(`>>> pem = ${pem}`);
+	t.comment(`>>> pem = ${pem.toString()}`);
+	t.comment(`>>> pem = ${util.inspect(pem)}`);
+	t.comment(`>>> pem = ${util.inspect(pem.toString())}`);
+	const cert = new X509();
+	cert.readCertPEM(pem);
+	const params = cert.getParam();
+	t.comment(`>>> getParam() = ${util.inspect(params)}`);
+	const extension = cert.findExt(params.ext, '1.2.3.4.5.6.7.8.1');
+	t.comment(`>>> findExt() = ${util.inspect(extension)}`);
 
-	// let found = false;
-	// if (extension && extension.extn) {
-	// 	const attributesJson = Buffer.from(extension.extn, 'hex').toString();
-	// 	const attributes = JSON.parse(attributesJson).attrs;
-	// 	found = !!attributes[attr_name];
-	// }
+	let found = false;
+	if (extension && extension.extn) {
+		const attributesJson = Buffer.from(extension.extn, 'hex').toString();
+		const attributes = JSON.parse(attributesJson).attrs;
+		found = !!attributes[attr_name];
+	}
 
-	// if (should_find) {
-	// 	if (found) {
-	// 		t.pass('Successfully received the enrolled certificate with the added attribute ::' + attr_name);
-	// 	} else {
-	// 		t.fail('Failed to receive the enrolled certificate with the added attribute ::' + attr_name);
-	// 	}
-	// } else {
-	// 	if (found) {
-	// 		t.fail('Failed with the enrolled certificate that has the added attribute ::' + attr_name);
-	// 	} else {
-	// 		t.pass('Successfully enrolled with certificate without the added attribute ::' + attr_name);
-	// 	}
-	// }
+	if (should_find) {
+		if (found) {
+			t.pass('Successfully received the enrolled certificate with the added attribute ::' + attr_name);
+		} else {
+			t.fail('Failed to receive the enrolled certificate with the added attribute ::' + attr_name);
+		}
+	} else {
+		if (found) {
+			t.fail('Failed with the enrolled certificate that has the added attribute ::' + attr_name);
+		} else {
+			t.pass('Successfully enrolled with certificate without the added attribute ::' + attr_name);
+		}
+	}
 }
 
 test('\n\n ** FabricCAClient: Test enroll With Static CSR **\n\n', (t) => {
